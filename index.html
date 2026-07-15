@@ -18,6 +18,15 @@
     backdrop-filter: blur(4px);
   }
   .ui-panel h1 { font-size: 14px; margin: 0 0 2px; font-weight: 600; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; }
+  #panelToggle {
+    background: #2a2f3a; color: #cfd6dd; border: 1px solid #3a4150;
+    border-radius: 6px; width: 24px; height: 24px; line-height: 1;
+    font-size: 15px; cursor: pointer; flex: 0 0 auto; padding: 0;
+  }
+  .ui-panel.collapsed { width: auto; padding: 8px 12px; }
+  .ui-panel.collapsed #panelBody { display: none; }
+  .ui-panel.collapsed h1 { margin: 0; }
   .ui-panel .sub { color: #9aa3ad; font-size: 11px; margin-bottom: 8px; }
   .stat { font-size: 12px; margin-bottom: 8px; color: #d7dde3; }
   .stat b { color: #fff; }
@@ -65,7 +74,11 @@
 <div id="map"></div>
 
 <div class="ui-panel">
-  <h1>Nigeria — Conflict Events</h1>
+  <div class="panel-head" id="panelHead">
+    <h1>Nigeria — Conflict Events</h1>
+    <button id="panelToggle" title="Show/hide legend" aria-label="Show or hide legend">–</button>
+  </div>
+  <div id="panelBody">
   <div class="sub">UCDP GED v26.1 + Candidate to May 2026 · Jul 2024 – May 2026 · GDELT to 14 Jul 2026</div>
   <div class="stat">Showing <b id="nEvents">0</b> events · <b id="nDeaths">0</b> fatalities</div>
   <div class="legend-row"><span class="dot" style="background:#ff3b30"></span> State-based conflict</div>
@@ -85,6 +98,7 @@
     <button id="mPts">Points</button>
   </div>
   <div class="hint">Auto: heatmap switches to individual points at zoom ≥ 13. Co-located events are fanned out slightly so each can be clicked. Point size = fatalities.</div>
+</div>
 </div>
 
 <div class="timebar">
@@ -301,6 +315,17 @@ slider.noUiSlider.on('update', values => {
     rebuild();
   }, 60);
 });
+
+const panelEl = document.querySelector('.ui-panel');
+const panelToggle = document.getElementById('panelToggle');
+function setPanelCollapsed(c) {
+  panelEl.classList.toggle('collapsed', c);
+  panelToggle.textContent = c ? '+' : '\u2013';
+}
+document.getElementById('panelHead').addEventListener('click', () =>
+  setPanelCollapsed(!panelEl.classList.contains('collapsed')));
+// Phones: start collapsed so the legend doesn't cover the map.
+setPanelCollapsed(window.innerWidth <= 720);
 
 const gToggle = document.getElementById('gdeltToggle');
 function applyGdelt() {
